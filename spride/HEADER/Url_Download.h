@@ -36,6 +36,7 @@
             ~Http_Requst();
             bool get_head_massage(string requstfunc,string Url);
             void add_header(string _header);
+            void set_header();
             void fill_http_head();
             void fill_http_packet(char * data);
             int send_requst(int sockfd);
@@ -48,16 +49,21 @@
             string Content_type;            //accept content type, forexample: text/html
             unsigned int Content_length;    //accept content length
             
-            char *G_Http_Packet;
-            unsigned int Packet_len;             
+            char *G_Http_Packet;   
         public:
             Http_Response();
             ~Http_Response();
-            read_Response(int sockfd);
+            int read_Response(int sockfd);
             //每个值都有自己的获取函数
-            get_head_value();
-            delete_head();
-            get_Content();
+           // get_head_value();
+            string get_packet_protocol() const;
+            string get_response_type() const;
+            string get_content_type() const;
+            char* get_Http_Packet();
+            int obtain_packet_protocol();
+            int obtain_response_type();
+            int obtain_content_type();
+            int obtain_content_length();
     };
     class Url_Download{
         private:
@@ -68,6 +74,8 @@
             IpAddr
             port
             int confd
+            char *Http_Buf;
+            unsigned int Http_length;
         public:
             Url_Download(_Url)
             SetHostIpAddr();

@@ -2,9 +2,7 @@
 //class Http_Requst achieve
 Http_Requst::Http_Requst(){
     requst_func = "GET";
-    URL = "/";
     request_version = "HTTP/1.1";
-    hostname = "www.baidu.com";
     header.clear();
     if(R_Http_Packet != NULL){
         delete [] R_Http_Packet;
@@ -33,6 +31,14 @@ Http_Requst::get_head_massage(string requstfunc, string Url){
         }
     }
     return false;
+}
+void Http_Response::set_header(){
+    string tmp[] = {"Accept: text/html","Accept-Language: zh-CN","User-Agent: wget/1.17.1","Connection: keep-Alive","Host: "+hostname, "\0"};
+    int i = 0;
+    while(tmp[i].length() > 0){
+        header.push_back(tmp[i]);
+        i++;
+    }
 }
 void Http_Requst::add_header(string _header){
     header.push_back(_header);
@@ -68,23 +74,21 @@ int Http_Requst::send_requst(int sockfd){
 
 
 //class Http_Response
-class Http_Response::Http_Response(){
+Http_Response::Http_Response(){
     if(G_Http_Packet != NULL)
         delete [] G_Http_Packet;
     G_Http_Packet = new char[R_Http_Packet_len];
     Packet_len = R_Http_Packet_len;
 }
-class Http_Response::~Http_Response(){
+Http_Response::~Http_Response(){
     if(G_Http_Packet != NULL)
         delete [] G_Http_Packet; 
     Packet_len = 0;
 }
-class Http_Response::read_Response(int sockfd){
+int Http_Response::read_Response(int sockfd){
     ssize_t recvfd;
-    char *tmp_Packet;
-    char *buf = NULL;
-    tmp_Packet = new char[R_Http_Packet_len];
-    recvfd = recv(sockfd, tmp_Packet, R_Http_Packet_len, 0);
+    memset(R_Http_Packet, 0, R_Http_Packet_len);
+    recvfd = recv(sockfd, R_Http_Packet, R_Http_Packet_len, 0);
     if(recvfd == -1){
         //日志
         cout<<"errno recv"<<endl;
@@ -93,16 +97,20 @@ class Http_Response::read_Response(int sockfd){
         close(sockfd);
         return CLOSE;               
     }else{
-        if(Packet_len < (int len1 = strlen(R_Http_Packet)) + (int len2 = strlen(tmp_Packet))){
-            buf = new char[len1+len2];
-            Packet_len = len1+len2;
-            strcpy(buf, R_Http_Packet);
-            delete [] R_Http_Packet;
-            R_Http_Packet = buf;
-            buf = NULL;
-        }
-        strcat(R_Http_Packet, tmp_Packet);
         cout<<"success"<<endl;
     }
     return SUCCESS;
 }
+string Http_Response::get_packet_protocol(){
+    return Packet_protocol;
+}
+string Http_Response::get_response_type(){
+    return Response_type;
+}
+string Http_Response::get_content_type(){
+    return Content_type; 
+}
+char* Http_Response::get_Http_Packet(){
+     return G_Http_Packet;
+}
+ 
